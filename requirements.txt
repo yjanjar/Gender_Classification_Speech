@@ -1,0 +1,8 @@
+numpy
+scipy
+scikit-learn
+pandas
+seaborn
+keras
+pysoundfiles
+python_speech_features
