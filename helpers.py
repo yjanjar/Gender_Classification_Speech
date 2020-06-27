@@ -33,15 +33,15 @@ dropout_fraction = 0.5
 
 
 
-def initialize_model(activation, dataSize,d_f):
+def initialize_model(activation, dataSize, dropout_fraction):
 	'''Function to initialize the Convolutional Neural Network'''
+
 	model = Sequential()
 
 	model.add(Conv1D(input_shape=(dataSize,1),kernel_size=5, strides=1, filters=10,
 	             kernel_regularizer = regularizers.l2(0.005),
 	             kernel_initializer = glorot_normal(seed)))
 	model.add(LeakyReLU(0.01))
-	#model.add(MaxPooling1D(pool_size=2, strides=None, padding='valid', data_format='channels_last'))
 
 
 	model.add(Conv1D(kernel_size=2, strides=1, filters=10,
@@ -49,9 +49,7 @@ def initialize_model(activation, dataSize,d_f):
 	             kernel_initializer = glorot_normal(seed)))
 	model.add(LeakyReLU(0.01))
 	model.add(BatchNormalization())
-	#model.add(MaxPooling1D(pool_size=2, strides=None, padding='valid', data_format='channels_last'))
-	#model.add(Dropout(dropout_fraction))
-
+	
 
 	model.add(Flatten())
 
@@ -83,7 +81,7 @@ def compile_model(model,learning_rate,loss_function,metrics):
 
 
 
-def dataset_from_readers(readers):
+def dataset_from_readers(readers,path_to_folder):
 
 	''' Creates dataset from the list of readers.
 
@@ -93,7 +91,7 @@ def dataset_from_readers(readers):
 	dataset = np.ndarray(shape=(0,numcep))
 	G = np.ndarray(shape=(0,1))
 	for reader_ID, gender in readers:
-	    path_to_reader = os.path.join('../Downloads/LibriSpeech/dev-clean/',str(int(reader_ID)))
+	    path_to_reader = os.path.join(path_to_folder,str(int(reader_ID)))
 
 	    for source, folder, files in os.walk(path_to_reader):
 	        for flac_name in files:
@@ -138,17 +136,17 @@ def extract_from_file(filepath):
 	return mean_features
 
 
-def train_test(readers, split_ratio):
+def train_test(data, split_ratio):
 
 	''' Performs a train/test split on the data.
 
-		 Inputs : readers, the split ratio desired (common: 80/20 split).
+		 Inputs : data, the split ratio desired (common: 80/20 split).
 		 Ouputs : IDs for the train and test data. '''
 
 	np.random.seed(seed)
 
-	IDs = np.random.permutation(readers.shape[0])
-	split = int(readers.shape[0]*split_ratio)
+	IDs = np.random.permutation(data.shape[0])
+	split = int(data.shape[0]*split_ratio)
 	train_IDs , test_IDs = IDs[:split] , IDs[split:]
 
 	return train_IDs,test_IDs
